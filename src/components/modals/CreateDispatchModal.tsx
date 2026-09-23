@@ -35,12 +35,14 @@ export const CreateDispatchModal: React.FC<CreateDispatchModalProps> = ({
   const [latitude, setLatitude] = useState<string>('19.0760° N');
   const [longitude, setLongitude] = useState<string>('72.8777° E');
   const [distanceKm, setDistanceKm] = useState<number>(32);
+  const [shippingAddress, setShippingAddress] = useState<string>('');
 
-  // Auto-fill Geo Location and Distance when PIs are selected
+  // Auto-fill Geo Location, Distance, and Shipping Address when PIs are selected
   useEffect(() => {
     if (selectedPiIds.length > 0) {
       const clients = dispatchService.getClients();
-      const firstPI = pendingPIs.find((p) => selectedPiIds.includes(p.id));
+      const selectedPIs = pendingPIs.filter((p) => selectedPiIds.includes(p.id));
+      const firstPI = selectedPIs[0];
       if (firstPI) {
         const client = clients.find(
           (c) => c.name === firstPI.clientName || c.code === firstPI.clientCode
@@ -50,7 +52,13 @@ export const CreateDispatchModal: React.FC<CreateDispatchModalProps> = ({
           setLongitude(client.longitude || '72.8777° E');
           setDistanceKm(client.distanceKm || 45);
         }
+        const addresses = selectedPIs
+          .map((p) => `${p.piNumber} (${p.clientName}): ${p.deliveryAddress || `${p.destinationCity}, ${p.state}`}`)
+          .join('\n');
+        setShippingAddress(addresses);
       }
+    } else {
+      setShippingAddress('');
     }
   }, [selectedPiIds, pendingPIs]);
 
@@ -284,6 +292,26 @@ export const CreateDispatchModal: React.FC<CreateDispatchModalProps> = ({
                 className="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-xs font-medium text-slate-900 focus:ring-2 focus:ring-[#F4B400]"
               />
             </div>
+          </div>
+
+          {/* Consolidated Shipping / Delivery Address Box */}
+          <div className="p-3 bg-blue-50/70 border border-blue-200/90 rounded-xl space-y-1.5">
+            <div className="flex items-center justify-between">
+              <label className="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
+                <MapPin className="w-3.5 h-3.5 text-blue-600" />
+                <span>Consolidated Shipping / Delivery Address</span>
+              </label>
+              <span className="text-[10px] bg-blue-100 text-blue-800 px-2 py-0.5 rounded font-semibold border border-blue-200">
+                {selectedPiIds.length > 0 ? `${selectedPiIds.length} PI(s) Auto-Mapped` : 'Auto-Mapped with Selected PI'}
+              </span>
+            </div>
+            <textarea
+              rows={2}
+              value={shippingAddress}
+              onChange={(e) => setShippingAddress(e.target.value)}
+              placeholder="Select PI(s) below to map consolidated shipping address..."
+              className="w-full px-3 py-1.5 bg-white border border-slate-300 rounded-lg text-xs font-medium text-slate-900 focus:ring-2 focus:ring-[#F4B400] resize-none"
+            />
           </div>
 
           <div>

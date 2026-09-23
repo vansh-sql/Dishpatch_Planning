@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Plus, Trash2, FilePlus, Check, Save } from 'lucide-react';
+import { X, Plus, Trash2, FilePlus, Check, Save, MapPin } from 'lucide-react';
 import { dispatchService } from '../../services/api';
 import { Client, PIItem, PriorityLevel, ProformaInvoice } from '../../types';
 
@@ -22,19 +22,23 @@ export const NewPIModal: React.FC<NewPIModalProps> = ({ isOpen, onClose, onSucce
   const [division, setDivision] = useState<'GT' | 'MT' | 'SMT' | 'SMT-Direct'>('GT');
   const [creditLimit, setCreditLimit] = useState<number>(0);
   const [totalAmountReceived, setTotalAmountReceived] = useState<number>(0);
+  const [shippingAddress, setShippingAddress] = useState<string>('Gala 14, Reliance Logistics Park, Bhiwandi, Thane 421302');
   const [latitude, setLatitude] = useState<string>('19.0760° N');
   const [longitude, setLongitude] = useState<string>('72.8777° E');
   const [distanceKm, setDistanceKm] = useState<number>(32);
 
-  // Update Lat/Long and Distance whenever client changes
+  // Update Lat/Long, Distance & Shipping Address whenever client changes
   useEffect(() => {
     const client = clients.find((c) => c.code === selectedClientCode);
     if (client) {
       setLatitude(client.latitude || '19.0760° N');
       setLongitude(client.longitude || '72.8777° E');
       setDistanceKm(client.distanceKm || 35);
+      if (!selectedPIId) {
+        setShippingAddress(`${client.city} Central Hub, Plot ${client.deliveryZone}, ${client.state}`);
+      }
     }
-  }, [selectedClientCode, clients]);
+  }, [selectedClientCode, clients, selectedPIId]);
 
   const [items, setItems] = useState<PIItem[]>([
     {
@@ -51,7 +55,7 @@ export const NewPIModal: React.FC<NewPIModalProps> = ({ isOpen, onClose, onSucce
     },
   ]);
 
-  // When a PI is selected, auto-fill all its data
+  // When a PI is selected, auto-fill all its data including Shipping Address
   useEffect(() => {
     if (selectedPIId) {
       const pi = pendingPIs.find(p => p.id === selectedPIId);
@@ -60,6 +64,7 @@ export const NewPIModal: React.FC<NewPIModalProps> = ({ isOpen, onClose, onSucce
         setExpectedDate(pi.expectedDeliveryDate);
         setPriority(pi.priority);
         if (pi.division) setDivision(pi.division);
+        if (pi.deliveryAddress) setShippingAddress(pi.deliveryAddress);
         const mappedItems = (pi.items.length > 0 ? pi.items : items).map((itm) => ({
           ...itm,
           originalQuantity: itm.originalQuantity ?? itm.quantity,
@@ -154,7 +159,7 @@ export const NewPIModal: React.FC<NewPIModalProps> = ({ isOpen, onClose, onSucce
       clientCode: selectedClient.code,
       destinationCity: selectedClient.city,
       state: selectedClient.state,
-      deliveryAddress: `${selectedClient.city} Logistics Hub, Zone ${selectedClient.deliveryZone}`,
+      deliveryAddress: shippingAddress || `${selectedClient.city} Logistics Hub, Zone ${selectedClient.deliveryZone}`,
       pinCode: '400001',
       piDate: todayStr,
       expectedDeliveryDate: expectedDate,
@@ -257,6 +262,26 @@ export const NewPIModal: React.FC<NewPIModalProps> = ({ isOpen, onClose, onSucce
                 required
               />
             </div>
+          </div>
+
+          {/* Shipping / Delivery Address Box */}
+          <div className="p-3 bg-blue-50/70 border border-blue-200/90 rounded-xl space-y-1.5">
+            <div className="flex items-center justify-between">
+              <label className="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
+                <MapPin className="w-3.5 h-3.5 text-blue-600" />
+                <span>Shipping / Delivery Address</span>
+              </label>
+              <span className="text-[10px] bg-blue-100 text-blue-800 px-2 py-0.5 rounded font-semibold border border-blue-200">
+                Auto-Mapped with PI
+              </span>
+            </div>
+            <textarea
+              rows={2}
+              value={shippingAddress}
+              onChange={(e) => setShippingAddress(e.target.value)}
+              placeholder="Enter complete shipping address..."
+              className="w-full px-3 py-1.5 bg-white border border-slate-300 rounded-lg text-xs font-medium text-slate-900 focus:ring-2 focus:ring-[#F4B400] resize-none"
+            />
           </div>
 
           {/* Row 2: Priority + Division + Credit Limit + Total Amount Received */}
