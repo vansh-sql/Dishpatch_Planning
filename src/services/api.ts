@@ -9,6 +9,7 @@ import {
   DispatchStatus,
   PIStatus,
   Warehouse,
+  POPickup,
 } from '../types';
 import {
   INITIAL_CLIENTS,
@@ -19,6 +20,7 @@ import {
   INITIAL_ROLLBACK_LOGS,
   INITIAL_NOTIFICATIONS,
   INITIAL_WAREHOUSES,
+  INITIAL_PO_PICKUPS,
 } from '../data/mockData';
 
 // Local storage keys to persist state across user interactions
@@ -31,6 +33,7 @@ const STORAGE_KEYS = {
   ROLLBACKS: 'Dispatch_Planning_rollbacks',
   NOTIFICATIONS: 'Dispatch_Planning_notifications',
   WAREHOUSES: 'Dispatch_Planning_warehouses',
+  PO_PICKUPS: 'Dispatch_Planning_po_pickups',
 };
 
 function getStored<T>(key: string, defaultVal: T): T {
@@ -60,6 +63,7 @@ class DispatchDataService {
   private rollbacks: RollbackAction[] = getStored(STORAGE_KEYS.ROLLBACKS, INITIAL_ROLLBACK_LOGS);
   private notifications: NotificationItem[] = getStored(STORAGE_KEYS.NOTIFICATIONS, INITIAL_NOTIFICATIONS);
   private warehouses: Warehouse[] = getStored(STORAGE_KEYS.WAREHOUSES, INITIAL_WAREHOUSES);
+  private poPickups: POPickup[] = getStored(STORAGE_KEYS.PO_PICKUPS, INITIAL_PO_PICKUPS);
 
   private listeners: Array<() => void> = [];
 
@@ -137,6 +141,10 @@ class DispatchDataService {
       return true;
     }
     return false;
+  }
+
+  public getPOPickups(): POPickup[] {
+    return this.poPickups;
   }
 
   // ==========================================

@@ -162,3 +162,21 @@ export interface NotificationItem {
   read: boolean;
   actionLink?: string;
 }
+
+export interface POPickup {
+  id: string;
+  uniqueId: string;
+  poNumber: string;
+  poDated: string;
+  vendorType: string;
+  contactPersonName: string;
+  vendorCode: string;
+  vendorName: string;
+  contactPersonNo: string;
+  vendorAddress: string;
+  paymentTerm: string;
+  deliveryDate: string;
+  pdfUrl?: string;
+  actualFillPurchaseTeam: string;
+  status: 'PENDING' | 'SCHEDULED' | 'COMPLETED' | 'CANCELLED';
+}

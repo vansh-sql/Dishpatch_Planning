@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   LayoutDashboard,
   CalendarDays,
@@ -8,11 +8,12 @@ import {
   RotateCcw,
   BarChart3,
   Settings,
-  Truck,
   FileSpreadsheet,
   Layers,
-  ChevronRight,
   ShieldAlert,
+  Package,
+  ChevronDown,
+  ChevronRight,
 } from 'lucide-react';
 import { dispatchService } from '../services/api';
 import logoUrl from '../assets/logo.png';
@@ -27,14 +28,29 @@ interface SidebarProps {
 export const Sidebar: React.FC<SidebarProps> = ({ currentPath, onNavigate }) => {
   const pendingCount = dispatchService.getPendingPIs().length;
   const todaysCount = dispatchService.getTodaysDispatches().length;
+  const poPickupCount = dispatchService.getPOPickups().filter((p) => p.status === 'PENDING').length;
 
-  const navItems = [
+  const [moreOpen, setMoreOpen] = useState(() => {
+    const morePaths = [
+      '/upcoming-planning',
+      '/completed-dispatch',
+      '/dispatch-history',
+      '/rollback',
+      '/reports',
+      '/settings',
+    ];
+    return morePaths.includes(currentPath);
+  });
+
+  // Primary top 5 nav items (always visible)
+  const primaryItems = [
     {
       id: 'dashboard',
       label: 'Dashboard',
       path: '/dashboard',
       icon: LayoutDashboard,
-      badge: undefined,
+      badge: undefined as string | undefined,
+      badgeColor: '',
     },
     {
       id: 'pending-pi',
@@ -49,7 +65,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentPath, onNavigate }) => 
       label: 'Dispatch Planning',
       path: '/dispatch-planning',
       icon: Layers,
-      badge: 'Action',
+      badge: 'Action' as string | undefined,
       badgeColor: 'bg-amber-100 text-amber-900 border-amber-300',
     },
     {
@@ -61,32 +77,47 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentPath, onNavigate }) => 
       badgeColor: 'bg-blue-600 text-white font-bold',
     },
     {
+      id: 'po-pickup',
+      label: 'Po-Picup',
+      path: '/po-pickup',
+      icon: Package,
+      badge: poPickupCount > 0 ? String(poPickupCount) : undefined,
+      badgeColor: 'bg-purple-500 text-white font-bold',
+    },
+  ];
+
+  // Secondary items under "More Operations"
+  const moreItems = [
+    {
       id: 'upcoming-planning',
       label: 'Upcoming Planning',
       path: '/upcoming-planning',
       icon: CalendarDays,
-      badge: undefined,
+      badge: undefined as string | undefined,
+      badgeColor: '',
     },
     {
       id: 'completed-dispatch',
       label: 'Completed Dispatch',
       path: '/completed-dispatch',
       icon: CheckCircle,
-      badge: undefined,
+      badge: undefined as string | undefined,
+      badgeColor: '',
     },
     {
       id: 'dispatch-history',
       label: 'Dispatch History',
       path: '/dispatch-history',
       icon: History,
-      badge: undefined,
+      badge: undefined as string | undefined,
+      badgeColor: '',
     },
     {
       id: 'rollback',
       label: 'Rollback & Revert',
       path: '/rollback',
       icon: RotateCcw,
-      badge: 'Audit',
+      badge: 'Audit' as string | undefined,
       badgeColor: 'bg-rose-100 text-rose-800 border-rose-200',
     },
     {
@@ -94,16 +125,50 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentPath, onNavigate }) => 
       label: 'Reports & Analytics',
       path: '/reports',
       icon: BarChart3,
-      badge: undefined,
+      badge: undefined as string | undefined,
+      badgeColor: '',
     },
     {
       id: 'settings',
       label: 'System & Masters',
       path: '/settings',
       icon: Settings,
-      badge: undefined,
+      badge: undefined as string | undefined,
+      badgeColor: '',
     },
   ];
+
+  const renderNavItem = (item: typeof primaryItems[0]) => {
+    const Icon = item.icon;
+    const isActive = currentPath === item.path;
+    return (
+      <button
+        key={item.id}
+        onClick={() => onNavigate(item.path)}
+        className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-xs font-medium transition-all ${
+          isActive
+            ? 'bg-[#F4B400] text-[#181309] font-bold shadow-xs'
+            : 'text-slate-300 hover:bg-[#282114] hover:text-white'
+        }`}
+      >
+        <div className="flex items-center gap-3">
+          <Icon className={`w-4 h-4 ${isActive ? 'text-[#181309]' : 'text-[#a89574]'}`} />
+          <span>{item.label}</span>
+        </div>
+        {item.badge && (
+          <span
+            className={`text-[10px] px-1.5 py-0.2 rounded border font-semibold ${
+              item.badgeColor || 'bg-slate-800 text-slate-300 border-slate-700'
+            }`}
+          >
+            {item.badge}
+          </span>
+        )}
+      </button>
+    );
+  };
+
+  const isMoreActive = moreItems.some((i) => i.path === currentPath);
 
   return (
     <aside className="w-64 bg-[#181309] text-slate-200 flex flex-col shrink-0 border-r border-[#2d2516] select-none h-screen sticky top-0 z-30">
@@ -144,41 +209,40 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentPath, onNavigate }) => 
         <div className="px-2 pb-1 text-[10px] font-bold uppercase tracking-wider text-[#8f7e61]">
           Core Operations
         </div>
-        {navItems.map((item) => {
-          const Icon = item.icon;
-          const isActive = currentPath === item.path;
 
-          return (
-            <button
-              key={item.id}
-              onClick={() => onNavigate(item.path)}
-              className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-xs font-medium transition-all ${
-                isActive
-                  ? 'bg-[#F4B400] text-[#181309] font-bold shadow-xs'
-                  : 'text-slate-300 hover:bg-[#282114] hover:text-white'
-              }`}
-            >
-              <div className="flex items-center gap-3">
-                <Icon
-                  className={`w-4 h-4 ${
-                    isActive ? 'text-[#181309]' : 'text-[#a89574]'
-                  }`}
-                />
-                <span>{item.label}</span>
-              </div>
+        {/* Primary 5 Items */}
+        {primaryItems.map(renderNavItem)}
 
-              {item.badge && (
-                <span
-                  className={`text-[10px] px-1.5 py-0.2 rounded border font-semibold ${
-                    item.badgeColor || 'bg-slate-800 text-slate-300 border-slate-700'
-                  }`}
-                >
-                  {item.badge}
-                </span>
+        {/* More Operations Collapsible */}
+        <div className="pt-1">
+          <button
+            onClick={() => setMoreOpen((prev) => !prev)}
+            className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-xs font-medium transition-all ${
+              isMoreActive
+                ? 'bg-[#282114] text-[#F4B400] font-bold'
+                : 'text-slate-400 hover:bg-[#282114] hover:text-slate-200'
+            }`}
+          >
+            <div className="flex items-center gap-3">
+              {moreOpen ? (
+                <ChevronDown className="w-4 h-4 text-[#a89574]" />
+              ) : (
+                <ChevronRight className="w-4 h-4 text-[#a89574]" />
               )}
-            </button>
-          );
-        })}
+              <span>More Operations</span>
+            </div>
+            <span className="text-[9px] px-1.5 py-0.5 rounded bg-[#2d2516] text-[#8f7e61] border border-[#3a2e1a] font-semibold">
+              {moreItems.length}
+            </span>
+          </button>
+
+          {/* Expanded Items */}
+          {moreOpen && (
+            <div className="mt-1 ml-3 pl-2 border-l border-[#2d2516] space-y-0.5">
+              {moreItems.map(renderNavItem)}
+            </div>
+          )}
+        </div>
       </nav>
 
       {/* Footer System Status */}

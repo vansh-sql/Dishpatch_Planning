@@ -14,9 +14,10 @@ import {
   Layers,
   MapPin,
   FileText,
+  Package,
 } from 'lucide-react';
 import { dispatchService } from '../services/api';
-import { DispatchPlan, ProformaInvoice, Vehicle } from '../types';
+import { DispatchPlan, ProformaInvoice, Vehicle, POPickup } from '../types';
 import { StatusBadge } from '../components/common/StatusBadge';
 import { CapacityBar } from '../components/common/CapacityBar';
 import { ApprovePIModal } from '../components/modals/ApprovePIModal';
@@ -41,6 +42,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
   const [pis, setPis] = useState<ProformaInvoice[]>([]);
   const [dispatches, setDispatches] = useState<DispatchPlan[]>([]);
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
+  const [poPickups, setPoPickups] = useState<POPickup[]>([]);
 
   const [selectedPIToApprove, setSelectedPIToApprove] = useState<ProformaInvoice | null>(null);
 
@@ -49,6 +51,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
       setPis(dispatchService.getPIs());
       setDispatches(dispatchService.getDispatchPlans());
       setVehicles(dispatchService.getVehicles());
+      setPoPickups(dispatchService.getPOPickups());
     };
     loadData();
     const unsub = dispatchService.subscribe(loadData);
@@ -56,6 +59,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
   }, []);
 
   const pendingPIs = pis.filter((p) => p.status === 'PENDING');
+  const pendingPOPickups = poPickups.filter((p) => p.status === 'PENDING');
   const urgentPIs = pendingPIs.filter((p) => p.priority === 'URGENT' || p.priority === 'HIGH');
   const todaysDispatches = dispatches.filter(
     (d) => d.dispatchDate === '2026-03-02' || d.status === 'LOADING' || d.status === 'READY_FOR_LOADING'
@@ -115,80 +119,99 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
         </div>
       </div>
 
-      {/* KPI Stats Grid (Compact Size) */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+      {/* KPI Stats Grid (Compact Size - 5 Cards) */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
         {/* KPI 1: Total Pending PI */}
         <div
           onClick={() => onNavigate('/pending-pi')}
-          className="bg-white rounded-xl border border-slate-200 p-3.5 shadow-xs cursor-pointer hover:border-slate-300 transition-all flex items-center justify-between"
+          className="bg-white rounded-xl border border-slate-200 p-3 shadow-xs cursor-pointer hover:border-slate-300 transition-all flex items-center justify-between"
         >
           <div>
-            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 block">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 block truncate">
               Total Pending PI
             </span>
-            <div className="text-xl font-extrabold text-slate-900 mt-0.5">{pendingPIs.length} Orders</div>
-            <span className="text-[10px] text-amber-700 font-semibold">
-              {urgentPIs.length} High/Urgent Priority
+            <div className="text-lg font-extrabold text-slate-900 mt-0.5">{pendingPIs.length} Orders</div>
+            <span className="text-[9.5px] text-amber-700 font-semibold block truncate">
+              {urgentPIs.length} Urgent Priority
             </span>
           </div>
-          <div className="w-9 h-9 rounded-lg bg-[#181309] text-[#F4B400] flex items-center justify-center font-bold shrink-0">
+          <div className="w-8 h-8 rounded-lg bg-[#181309] text-[#F4B400] flex items-center justify-center font-bold shrink-0">
             <FileSpreadsheet className="w-4 h-4" />
           </div>
         </div>
 
-        {/* KPI 2: Total Invoice Amount */}
+        {/* KPI 2: Total Pending PO-Pickup */}
         <div
-          onClick={() => onNavigate('/pending-pi')}
-          className="bg-white rounded-xl border border-slate-200 p-3.5 shadow-xs cursor-pointer hover:border-slate-300 transition-all flex items-center justify-between"
+          onClick={() => onNavigate('/po-pickup')}
+          className="bg-white rounded-xl border border-slate-200 p-3 shadow-xs cursor-pointer hover:border-slate-300 transition-all flex items-center justify-between border-l-4 border-l-purple-500"
         >
           <div>
-            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 block">
-              Total Invoice Amount
+            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 block truncate">
+              Pending Po-Picup
             </span>
-            <div className="text-xl font-extrabold text-emerald-700 mt-0.5">
-              ₹{totalPendingAmount.toLocaleString()}
-            </div>
-            <span className="text-[10px] text-slate-500 font-medium">
-              ₹{(totalPendingAmount / 100000).toFixed(2)} Lakhs Pending
+            <div className="text-lg font-extrabold text-purple-900 mt-0.5">{pendingPOPickups.length} Pickups</div>
+            <span className="text-[9.5px] text-purple-700 font-medium block truncate">
+              Vendor pickup queue
             </span>
           </div>
-          <div className="w-9 h-9 rounded-lg bg-emerald-50 text-emerald-700 flex items-center justify-center font-bold shrink-0 border border-emerald-200">
+          <div className="w-8 h-8 rounded-lg bg-purple-50 text-purple-700 flex items-center justify-center font-bold shrink-0 border border-purple-200">
+            <Package className="w-4 h-4" />
+          </div>
+        </div>
+
+        {/* KPI 3: Total Invoice Amount */}
+        <div
+          onClick={() => onNavigate('/pending-pi')}
+          className="bg-white rounded-xl border border-slate-200 p-3 shadow-xs cursor-pointer hover:border-slate-300 transition-all flex items-center justify-between"
+        >
+          <div>
+            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 block truncate">
+              Total Invoice Value
+            </span>
+            <div className="text-lg font-extrabold text-emerald-700 mt-0.5">
+              ₹{(totalPendingAmount / 100000).toFixed(1)}L
+            </div>
+            <span className="text-[9.5px] text-slate-500 font-medium block truncate">
+              {pendingPIs.length} Pending Orders
+            </span>
+          </div>
+          <div className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-700 flex items-center justify-center font-bold shrink-0 border border-emerald-200">
             ₹
           </div>
         </div>
 
-        {/* KPI 3: Today's Dispatch Queue */}
+        {/* KPI 4: Today's Dispatch Queue */}
         <div
           onClick={() => onNavigate('/todays-planning')}
-          className="bg-white rounded-xl border border-slate-200 p-3.5 shadow-xs cursor-pointer hover:border-slate-300 transition-all flex items-center justify-between"
+          className="bg-white rounded-xl border border-slate-200 p-3 shadow-xs cursor-pointer hover:border-slate-300 transition-all flex items-center justify-between"
         >
           <div>
-            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 block">
-              Today's Dispatch Queue
+            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 block truncate">
+              Dispatch Queue
             </span>
-            <div className="text-xl font-extrabold text-slate-900 mt-0.5">{todaysDispatches.length} Vehicles</div>
-            <span className="text-[10px] text-slate-500 font-medium">Loading bays active</span>
+            <div className="text-lg font-extrabold text-slate-900 mt-0.5">{todaysDispatches.length} Vehicles</div>
+            <span className="text-[9.5px] text-slate-500 font-medium block truncate">Loading active</span>
           </div>
-          <div className="w-9 h-9 rounded-lg bg-blue-600 text-white flex items-center justify-center font-bold shrink-0">
+          <div className="w-8 h-8 rounded-lg bg-blue-600 text-white flex items-center justify-center font-bold shrink-0">
             <Clock className="w-4 h-4" />
           </div>
         </div>
 
-        {/* KPI 4: Fleet Available */}
+        {/* KPI 5: Fleet Available */}
         <div
           onClick={() => onNavigate('/settings')}
-          className="bg-white rounded-xl border border-slate-200 p-3.5 shadow-xs cursor-pointer hover:border-slate-300 transition-all flex items-center justify-between"
+          className="bg-white rounded-xl border border-slate-200 p-3 shadow-xs cursor-pointer hover:border-slate-300 transition-all flex items-center justify-between"
         >
           <div>
-            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 block">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 block truncate">
               Fleet Available
             </span>
-            <div className="text-xl font-extrabold text-slate-900 mt-0.5">
+            <div className="text-lg font-extrabold text-slate-900 mt-0.5">
               {availableVehicles.length} / {vehicles.length}
             </div>
-            <span className="text-[10px] text-slate-500 font-medium">Ready at yard</span>
+            <span className="text-[9.5px] text-slate-500 font-medium block truncate">Ready at yard</span>
           </div>
-          <div className="w-9 h-9 rounded-lg bg-emerald-600 text-white flex items-center justify-center font-bold shrink-0">
+          <div className="w-8 h-8 rounded-lg bg-emerald-600 text-white flex items-center justify-center font-bold shrink-0">
             <CheckCircle2 className="w-4 h-4" />
           </div>
         </div>
