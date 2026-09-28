@@ -63,6 +63,8 @@ export const POPickupPage: React.FC<POPickupPageProps> = () => {
       'Delivery Date',
       'PDF File',
       'Actual Fill Purchase Team',
+      'Planned',
+      'Actual',
     ];
 
     const rows = filteredPickups.map((p) => [
@@ -79,6 +81,8 @@ export const POPickupPage: React.FC<POPickupPageProps> = () => {
       p.deliveryDate,
       p.pdfUrl || '',
       p.actualFillPurchaseTeam,
+      `"${p.planned || ''}"`,
+      `"${p.actual || ''}"`,
     ]);
 
     const csvContent =
@@ -238,12 +242,14 @@ export const POPickupPage: React.FC<POPickupPageProps> = () => {
                 <th className="px-3 py-3 whitespace-nowrap min-w-[100px]">Delivery Date</th>
                 <th className="px-3 py-3 text-center whitespace-nowrap min-w-[100px]">PDF File</th>
                 <th className="px-3.5 py-3 whitespace-nowrap min-w-[160px]">Actual Fill Purchase Team</th>
+                <th className="px-3.5 py-3 whitespace-nowrap min-w-[120px]">Planned</th>
+                <th className="px-3.5 py-3 whitespace-nowrap min-w-[170px]">Actual</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-200 bg-emerald-50/30">
               {filteredPickups.length === 0 ? (
                 <tr>
-                  <td colSpan={13} className="px-4 py-12 text-center text-slate-400">
+                  <td colSpan={15} className="px-4 py-12 text-center text-slate-400">
                     No PO Pickups found for the selected criteria.
                   </td>
                 </tr>
@@ -333,8 +339,49 @@ export const POPickupPage: React.FC<POPickupPageProps> = () => {
                     </td>
 
                     {/* Actual Fill Purchase Team */}
-                    <td className="px-3.5 py-3 font-mono text-slate-700 text-[11px] whitespace-nowrap">
+                    <td className="px-3.5 py-3 font-mono text-slate-700 text-[11px] whitespace-nowrap border-r border-slate-200/60">
                       {item.actualFillPurchaseTeam}
+                    </td>
+
+                    {/* Planned (Date) */}
+                    <td className="px-3.5 py-3 font-mono font-semibold text-slate-800 whitespace-nowrap border-r border-slate-200/60">
+                      {item.planned || '-'}
+                    </td>
+
+                    {/* Actual (Date Input) */}
+                    <td className="px-3.5 py-2 whitespace-nowrap min-w-[190px]">
+                      <div className="flex items-center gap-1.5">
+                        <input
+                          type="text"
+                          defaultValue={item.actual || ''}
+                          placeholder="Enter Actual Date..."
+                          onBlur={(e) => {
+                            const val = e.target.value;
+                            if (val !== (item.actual || '')) {
+                              dispatchService.updatePOPickupActual(item.id, val);
+                            }
+                          }}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                              (e.target as HTMLInputElement).blur();
+                            }
+                          }}
+                          className={`w-full px-2.5 py-1 text-xs font-mono font-semibold rounded border transition-colors focus:outline-none focus:ring-2 ${
+                            item.actual && item.actual.trim() !== ''
+                              ? 'bg-emerald-50 text-emerald-900 border-emerald-300 focus:ring-emerald-500 font-bold'
+                              : 'bg-white text-slate-800 border-amber-300 focus:ring-amber-500 placeholder:text-amber-500/70 placeholder:font-sans placeholder:font-normal'
+                          }`}
+                        />
+                        {item.actual && item.actual.trim() !== '' ? (
+                          <span title="Actual Date Entered - Completed" className="p-1 bg-emerald-100 rounded text-emerald-700 shrink-0">
+                            <CheckCircle className="w-3.5 h-3.5" />
+                          </span>
+                        ) : (
+                          <span title="No Actual Date - Pending" className="p-1 bg-amber-100 rounded text-amber-700 shrink-0">
+                            <Clock className="w-3.5 h-3.5" />
+                          </span>
+                        )}
+                      </div>
                     </td>
                   </tr>
                 ))

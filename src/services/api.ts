@@ -147,6 +147,20 @@ class DispatchDataService {
     return this.poPickups;
   }
 
+  public updatePOPickupActual(id: string, actualValue: string): void {
+    const idx = this.poPickups.findIndex((p) => p.id === id);
+    if (idx !== -1) {
+      const isFilled = Boolean(actualValue && actualValue.trim() !== '');
+      this.poPickups[idx] = {
+        ...this.poPickups[idx],
+        actual: actualValue,
+        status: isFilled ? 'COMPLETED' : 'PENDING',
+      };
+      setStored(STORAGE_KEYS.PO_PICKUPS, this.poPickups);
+      this.notify();
+    }
+  }
+
   // ==========================================
   // DISPATCH PLANS METHODS
   // ==========================================

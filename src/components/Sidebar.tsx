@@ -14,6 +14,8 @@ import {
   Package,
   ChevronDown,
   ChevronRight,
+  Globe,
+  ShoppingBag,
 } from 'lucide-react';
 import { dispatchService } from '../services/api';
 import logoUrl from '../assets/logo.png';
@@ -32,6 +34,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentPath, onNavigate }) => 
 
   const [moreOpen, setMoreOpen] = useState(() => {
     const morePaths = [
+      '/export-transfer',
+      '/kb-orders',
       '/upcoming-planning',
       '/completed-dispatch',
       '/dispatch-history',
@@ -86,8 +90,24 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentPath, onNavigate }) => 
     },
   ];
 
-  // Secondary items under "More Operations"
+  // Secondary items under "More Operations" (Export Transfer and Kb Orders right after Po-Picup)
   const moreItems = [
+    {
+      id: 'export-transfer',
+      label: 'Export Transfer',
+      path: '/export-transfer',
+      icon: Globe,
+      badge: undefined as string | undefined,
+      badgeColor: '',
+    },
+    {
+      id: 'kb-orders',
+      label: 'Kb Orders',
+      path: '/kb-orders',
+      icon: ShoppingBag,
+      badge: undefined as string | undefined,
+      badgeColor: '',
+    },
     {
       id: 'upcoming-planning',
       label: 'Upcoming Planning',

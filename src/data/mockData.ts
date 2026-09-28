@@ -16,6 +16,8 @@ export const INITIAL_PO_PICKUPS: POPickup[] = [
     deliveryDate: '30/12/2025',
     pdfUrl: 'https://drive.google.com/file/d/1gzFj2PK8DOctRcsLctA-br71o8OoXLe/view',
     actualFillPurchaseTeam: '29-Dec-25 13:40:16',
+    planned: '30-Dec-2025',
+    actual: '',
     status: 'PENDING',
   },
   {
@@ -33,6 +35,8 @@ export const INITIAL_PO_PICKUPS: POPickup[] = [
     deliveryDate: '31/12/2025',
     pdfUrl: 'https://drive.google.com/file/d/1EUhFz4zxa8PblVLy5t_a6cL9-T6anEnK/view',
     actualFillPurchaseTeam: '29-Dec-25 13:40:56',
+    planned: '31-Dec-2025',
+    actual: '',
     status: 'PENDING',
   },
   {
@@ -50,6 +54,8 @@ export const INITIAL_PO_PICKUPS: POPickup[] = [
     deliveryDate: '30/12/2025',
     pdfUrl: 'https://drive.google.com/file/d/1QuUaF2s7L0jaqwm_eDVIYvgsrgYuv4-O/view',
     actualFillPurchaseTeam: '29-Dec-25 14:15:42',
+    planned: '30-Dec-2025',
+    actual: '',
     status: 'PENDING',
   },
   {
@@ -67,6 +73,8 @@ export const INITIAL_PO_PICKUPS: POPickup[] = [
     deliveryDate: '02/01/2026',
     pdfUrl: 'https://drive.google.com/file/d/1gzFj2PK8DOctRcsLctA-br71o8OoXLe/view',
     actualFillPurchaseTeam: '30-Dec-25 11:20:00',
+    planned: '02-Jan-2026',
+    actual: '',
     status: 'PENDING',
   },
   {
@@ -84,7 +92,9 @@ export const INITIAL_PO_PICKUPS: POPickup[] = [
     deliveryDate: '03/01/2026',
     pdfUrl: 'https://drive.google.com/file/d/1EUhFz4zxa8PblVLy5t_a6cL9-T6anEnK/view',
     actualFillPurchaseTeam: '30-Dec-25 16:45:10',
-    status: 'SCHEDULED',
+    planned: '30-Dec-2025',
+    actual: '30-Dec-2025 16:45',
+    status: 'COMPLETED',
   },
 ];
 

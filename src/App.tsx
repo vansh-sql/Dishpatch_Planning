@@ -11,6 +11,8 @@ import { RollbackPage } from './pages/RollbackPage';
 import { ReportsPage } from './pages/ReportsPage';
 import { SettingsPage } from './pages/SettingsPage';
 import { POPickupPage } from './pages/POPickupPage';
+import { ExportTransferPage } from './pages/ExportTransferPage';
+import { KBOrdersPage } from './pages/KBOrdersPage';
 
 export default function App() {
   const [currentPath, setCurrentPath] = useState<string>(() => {
@@ -85,6 +87,12 @@ export default function App() {
 
       case '/po-pickup':
         return <POPickupPage onNavigate={handleNavigate} />;
+
+      case '/export-transfer':
+        return <ExportTransferPage />;
+
+      case '/kb-orders':
+        return <KBOrdersPage />;
 
       case '/todays-planning':
         return (

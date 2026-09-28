@@ -178,5 +178,7 @@ export interface POPickup {
   deliveryDate: string;
   pdfUrl?: string;
   actualFillPurchaseTeam: string;
+  planned?: string;
+  actual?: string;
   status: 'PENDING' | 'SCHEDULED' | 'COMPLETED' | 'CANCELLED';
 }

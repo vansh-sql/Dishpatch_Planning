@@ -343,6 +343,7 @@ export const PendingPIPage: React.FC<PendingPIPageProps> = ({
                         <ExternalLink className="w-3 h-3 text-blue-500" />
                       </button>
                     </td>
+                    
 
                     {/* Issue / Due Date */}
                     <td className="px-3 py-3 whitespace-nowrap">
