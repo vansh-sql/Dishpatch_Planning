@@ -1,4 +1,4 @@
-import { ProformaInvoice, Vehicle, Driver, DispatchPlan, RollbackAction, Client, NotificationItem, Warehouse, POPickup } from '../types';
+import { ProformaInvoice, Vehicle, Driver, DispatchPlan, RollbackAction, Client, NotificationItem, Warehouse, POPickup, SpecialRequest } from '../types';
 
 export const INITIAL_PO_PICKUPS: POPickup[] = [
   {
@@ -95,6 +95,49 @@ export const INITIAL_PO_PICKUPS: POPickup[] = [
     planned: '30-Dec-2025',
     actual: '30-Dec-2025 16:45',
     status: 'COMPLETED',
+  },
+];
+
+export const INITIAL_SPECIAL_REQUESTS: SpecialRequest[] = [
+  {
+    id: 'SR-001',
+    requestId: 'SR/2026/0101',
+    vendorName: 'BANSAL TRADING CO (B)',
+    location: 'Bhiwandi, Thane',
+    contactNumber: '9821055432',
+    itemName: 'Deepak Oil 15L Tins',
+    deadlineDate: '2026-10-05',
+    feedback: 'Urgent warehouse dispatch required for festival stock buffer.',
+    attachments: ['Invoice_Bansal_450.pdf', 'Packing_Slip.png'],
+    submittedAt: '01-Oct-2026 10:30 AM',
+    status: 'PENDING',
+  },
+  {
+    id: 'SR-002',
+    requestId: 'SR/2026/0102',
+    vendorName: 'Garg Trading Corp',
+    location: 'Vashi, Navi Mumbai',
+    contactNumber: '9987012345',
+    itemName: 'Mustard Seeds 50kg Bags',
+    deadlineDate: '2026-10-08',
+    feedback: 'Quality verification completed. Direct dispatch to Bay 4.',
+    attachments: ['Quality_Certificate.pdf'],
+    submittedAt: '01-Oct-2026 11:15 AM',
+    status: 'WORK_DONE',
+    workDoneAt: '01-Oct-2026 02:20 PM',
+  },
+  {
+    id: 'SR-003',
+    requestId: 'SR/2026/0103',
+    vendorName: 'STC FOODS PRIVATE LTD',
+    location: 'Chakan, Pune',
+    contactNumber: '9711288490',
+    itemName: 'Poha Premium 30kg Pkgs',
+    deadlineDate: '2026-10-10',
+    feedback: 'Special vehicle clearance needed for weekend shift.',
+    attachments: ['Vehicle_Permit.pdf'],
+    submittedAt: '01-Oct-2026 01:45 PM',
+    status: 'PENDING',
   },
 ];
 

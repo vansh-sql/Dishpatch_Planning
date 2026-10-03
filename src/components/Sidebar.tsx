@@ -16,6 +16,7 @@ import {
   ChevronRight,
   Globe,
   ShoppingBag,
+  FileText,
 } from 'lucide-react';
 import { dispatchService } from '../services/api';
 import logoUrl from '../assets/logo.png';
@@ -31,9 +32,11 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentPath, onNavigate }) => 
   const pendingCount = dispatchService.getPendingPIs().length;
   const todaysCount = dispatchService.getTodaysDispatches().length;
   const poPickupCount = dispatchService.getPOPickups().filter((p) => p.status === 'PENDING').length;
+  const specialReqCount = dispatchService.getSpecialRequests().filter((r) => r.status === 'PENDING').length;
 
   const [moreOpen, setMoreOpen] = useState(() => {
     const morePaths = [
+      '/special-requests',
       '/export-transfer',
       '/kb-orders',
       '/upcoming-planning',
@@ -90,8 +93,16 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentPath, onNavigate }) => 
     },
   ];
 
-  // Secondary items under "More Operations" (Export Transfer and Kb Orders right after Po-Picup)
+  // Secondary items under "More Operations"
   const moreItems = [
+    {
+      id: 'special-request',
+      label: 'Special_Request',
+      path: '/special-requests',
+      icon: FileText,
+      badge: specialReqCount > 0 ? String(specialReqCount) : undefined,
+      badgeColor: 'bg-amber-400 text-slate-950 font-bold',
+    },
     {
       id: 'export-transfer',
       label: 'Export Transfer',

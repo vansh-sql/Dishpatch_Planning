@@ -182,3 +182,21 @@ export interface POPickup {
   actual?: string;
   status: 'PENDING' | 'SCHEDULED' | 'COMPLETED' | 'CANCELLED';
 }
+
+export interface SpecialRequest {
+  id: string;
+  requestId: string;
+  vendorName: string;
+  location: string;
+  latitude?: string;
+  longitude?: string;
+  contactNumber: string;
+  itemName: string;
+  deadlineDate: string;
+  feedback?: string;
+  attachments: string[];
+  submittedAt: string;
+  status: 'PENDING' | 'WORK_DONE';
+  workDoneAt?: string;
+}
+

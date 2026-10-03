@@ -13,6 +13,7 @@ import { SettingsPage } from './pages/SettingsPage';
 import { POPickupPage } from './pages/POPickupPage';
 import { ExportTransferPage } from './pages/ExportTransferPage';
 import { KBOrdersPage } from './pages/KBOrdersPage';
+import { SpecialRequestPage } from './pages/SpecialRequestPage';
 
 export default function App() {
   const [currentPath, setCurrentPath] = useState<string>(() => {
@@ -52,6 +53,7 @@ export default function App() {
     openGatePass: (dsp: any) => void;
     openRollback: (dsp: any) => void;
     openPIDetails: (pi: any) => void;
+    openSpecialRequest: () => void;
   }) => {
     switch (currentPath) {
       case '/':
@@ -64,8 +66,12 @@ export default function App() {
             onOpenRollback={helpers.openRollback}
             onOpenPIDetails={helpers.openPIDetails}
             onOpenNewPI={helpers.openNewPI}
+            onOpenSpecialRequest={helpers.openSpecialRequest}
           />
         );
+
+      case '/special-requests':
+        return <SpecialRequestPage onOpenNewSpecialRequest={helpers.openSpecialRequest} />;
 
       case '/dispatch-planning':
         return (
@@ -147,6 +153,7 @@ export default function App() {
             onOpenRollback={helpers.openRollback}
             onOpenPIDetails={helpers.openPIDetails}
             onOpenNewPI={helpers.openNewPI}
+            onOpenSpecialRequest={helpers.openSpecialRequest}
           />
         );
     }

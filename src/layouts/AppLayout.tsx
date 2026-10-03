@@ -6,6 +6,7 @@ import { NewPIModal } from '../components/modals/NewPIModal';
 import { GatePassModal } from '../components/modals/GatePassModal';
 import { RollbackModal } from '../components/modals/RollbackModal';
 import { ViewPIDetailsModal } from '../components/modals/ViewPIDetailsModal';
+import { SpecialRequestModal } from '../components/modals/SpecialRequestModal';
 import { DispatchPlan, ProformaInvoice } from '../types';
 
 interface AppLayoutProps {
@@ -17,6 +18,7 @@ interface AppLayoutProps {
     openGatePass: (dsp: DispatchPlan) => void;
     openRollback: (dsp: DispatchPlan) => void;
     openPIDetails: (pi: ProformaInvoice) => void;
+    openSpecialRequest: () => void;
   }) => React.ReactNode;
 }
 
@@ -28,6 +30,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
   const [isNewDispatchOpen, setIsNewDispatchOpen] = useState(false);
   const [preSelectedPIId, setPreSelectedPIId] = useState<string | undefined>();
   const [isNewPIOpen, setIsNewPIOpen] = useState(false);
+  const [isSpecialRequestOpen, setIsSpecialRequestOpen] = useState(false);
 
   const [activeGatePassDispatch, setActiveGatePassDispatch] = useState<DispatchPlan | null>(null);
   const [activeRollbackDispatch, setActiveRollbackDispatch] = useState<DispatchPlan | null>(null);
@@ -54,6 +57,10 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
     setActivePIDetail(pi);
   };
 
+  const openSpecialRequest = () => {
+    setIsSpecialRequestOpen(true);
+  };
+
   return (
     <div className="flex min-h-screen bg-[#F6F7FB] text-slate-900">
       {/* Sidebar */}
@@ -73,6 +80,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
             openGatePass,
             openRollback,
             openPIDetails,
+            openSpecialRequest,
           })}
         </main>
       </div>
@@ -106,6 +114,11 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
         isOpen={!!activePIDetail}
         onClose={() => setActivePIDetail(null)}
         onPlanDispatch={(pi) => openNewDispatch(pi.id)}
+      />
+
+      <SpecialRequestModal
+        isOpen={isSpecialRequestOpen}
+        onClose={() => setIsSpecialRequestOpen(false)}
       />
     </div>
   );

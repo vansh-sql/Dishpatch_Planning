@@ -10,6 +10,7 @@ import {
   PIStatus,
   Warehouse,
   POPickup,
+  SpecialRequest,
 } from '../types';
 import {
   INITIAL_CLIENTS,
@@ -21,6 +22,7 @@ import {
   INITIAL_NOTIFICATIONS,
   INITIAL_WAREHOUSES,
   INITIAL_PO_PICKUPS,
+  INITIAL_SPECIAL_REQUESTS,
 } from '../data/mockData';
 
 // Local storage keys to persist state across user interactions
@@ -34,6 +36,7 @@ const STORAGE_KEYS = {
   NOTIFICATIONS: 'Dispatch_Planning_notifications',
   WAREHOUSES: 'Dispatch_Planning_warehouses',
   PO_PICKUPS: 'Dispatch_Planning_po_pickups',
+  SPECIAL_REQUESTS: 'Dispatch_Planning_special_requests',
 };
 
 function getStored<T>(key: string, defaultVal: T): T {
@@ -64,6 +67,7 @@ class DispatchDataService {
   private notifications: NotificationItem[] = getStored(STORAGE_KEYS.NOTIFICATIONS, INITIAL_NOTIFICATIONS);
   private warehouses: Warehouse[] = getStored(STORAGE_KEYS.WAREHOUSES, INITIAL_WAREHOUSES);
   private poPickups: POPickup[] = getStored(STORAGE_KEYS.PO_PICKUPS, INITIAL_PO_PICKUPS);
+  private specialRequests: SpecialRequest[] = getStored(STORAGE_KEYS.SPECIAL_REQUESTS, INITIAL_SPECIAL_REQUESTS);
 
   private listeners: Array<() => void> = [];
 
@@ -157,6 +161,67 @@ class DispatchDataService {
         status: isFilled ? 'COMPLETED' : 'PENDING',
       };
       setStored(STORAGE_KEYS.PO_PICKUPS, this.poPickups);
+      this.notify();
+    }
+  }
+
+  // ==========================================
+  // SPECIAL REQUESTS METHODS
+  // ==========================================
+
+  public getSpecialRequests(): SpecialRequest[] {
+    return [...this.specialRequests];
+  }
+
+  public addSpecialRequest(
+    data: Omit<SpecialRequest, 'id' | 'requestId' | 'submittedAt' | 'status'>
+  ): SpecialRequest {
+    const count = this.specialRequests.length + 1;
+    const pad = String(count).padStart(4, '0');
+    const newReq: SpecialRequest = {
+      ...data,
+      id: `SR-${Date.now()}`,
+      requestId: `SR/2026/${pad}`,
+      submittedAt:
+        new Date().toLocaleDateString('en-GB', {
+          day: '2-digit',
+          month: 'short',
+          year: 'numeric',
+        }) +
+        ' ' +
+        new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
+      status: 'PENDING',
+    };
+
+    this.specialRequests = [newReq, ...this.specialRequests];
+    setStored(STORAGE_KEYS.SPECIAL_REQUESTS, this.specialRequests);
+    this.addNotification({
+      title: 'New Special Request Created',
+      message: `Special Request ${newReq.requestId} submitted for ${newReq.vendorName}.`,
+      type: 'INFO',
+    });
+    this.notify();
+    return newReq;
+  }
+
+  public updateSpecialRequestStatus(id: string, status: 'PENDING' | 'WORK_DONE'): void {
+    const idx = this.specialRequests.findIndex((s) => s.id === id);
+    if (idx !== -1) {
+      this.specialRequests[idx] = {
+        ...this.specialRequests[idx],
+        status,
+        workDoneAt:
+          status === 'WORK_DONE'
+            ? new Date().toLocaleDateString('en-GB', {
+                day: '2-digit',
+                month: 'short',
+                year: 'numeric',
+              }) +
+              ' ' +
+              new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
+            : undefined,
+      };
+      setStored(STORAGE_KEYS.SPECIAL_REQUESTS, this.specialRequests);
       this.notify();
     }
   }

@@ -17,7 +17,7 @@ import {
   Package,
 } from 'lucide-react';
 import { dispatchService } from '../services/api';
-import { DispatchPlan, ProformaInvoice, Vehicle, POPickup } from '../types';
+import { DispatchPlan, ProformaInvoice, Vehicle, POPickup, SpecialRequest } from '../types';
 import { StatusBadge } from '../components/common/StatusBadge';
 import { CapacityBar } from '../components/common/CapacityBar';
 import { ApprovePIModal } from '../components/modals/ApprovePIModal';
@@ -29,6 +29,7 @@ interface DashboardPageProps {
   onOpenGatePass: (dsp: DispatchPlan) => void;
   onOpenRollback: (dsp: DispatchPlan) => void;
   onOpenPIDetails: (pi: ProformaInvoice) => void;
+  onOpenSpecialRequest?: () => void;
 }
 
 export const DashboardPage: React.FC<DashboardPageProps> = ({
@@ -38,11 +39,13 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
   onOpenGatePass,
   onOpenRollback,
   onOpenPIDetails,
+  onOpenSpecialRequest,
 }) => {
   const [pis, setPis] = useState<ProformaInvoice[]>([]);
   const [dispatches, setDispatches] = useState<DispatchPlan[]>([]);
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [poPickups, setPoPickups] = useState<POPickup[]>([]);
+  const [specialRequests, setSpecialRequests] = useState<SpecialRequest[]>([]);
 
   const [selectedPIToApprove, setSelectedPIToApprove] = useState<ProformaInvoice | null>(null);
 
@@ -52,6 +55,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
       setDispatches(dispatchService.getDispatchPlans());
       setVehicles(dispatchService.getVehicles());
       setPoPickups(dispatchService.getPOPickups());
+      setSpecialRequests(dispatchService.getSpecialRequests());
     };
     loadData();
     const unsub = dispatchService.subscribe(loadData);
@@ -60,6 +64,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
 
   const pendingPIs = pis.filter((p) => p.status === 'PENDING');
   const pendingPOPickups = poPickups.filter((p) => p.status === 'PENDING');
+  const pendingSpecialReqs = specialRequests.filter((r) => r.status === 'PENDING');
   const urgentPIs = pendingPIs.filter((p) => p.priority === 'URGENT' || p.priority === 'HIGH');
   const todaysDispatches = dispatches.filter(
     (d) => d.dispatchDate === '2026-03-02' || d.status === 'LOADING' || d.status === 'READY_FOR_LOADING'
@@ -102,6 +107,15 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
         </div>
 
         <div className="flex items-center gap-2.5">
+          {onOpenSpecialRequest && (
+            <button
+              onClick={onOpenSpecialRequest}
+              className="px-3 py-2 bg-amber-50 border border-amber-300 hover:bg-amber-100 text-amber-900 text-xs font-semibold rounded-lg shadow-xs flex items-center gap-1.5 transition-colors"
+            >
+              <FileText className="w-3.5 h-3.5 text-amber-700" />
+              <span>Special Work Request</span>
+            </button>
+          )}
           <button
             onClick={onOpenNewPI}
             className="px-3 py-2 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-semibold rounded-lg shadow-xs flex items-center gap-1.5 transition-colors"
@@ -119,8 +133,8 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
         </div>
       </div>
 
-      {/* KPI Stats Grid (Compact Size - 5 Cards) */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+      {/* KPI Stats Grid (Compact Size - 6 Cards) */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
         {/* KPI 1: Total Pending PI */}
         <div
           onClick={() => onNavigate('/pending-pi')}
@@ -213,6 +227,23 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
           </div>
           <div className="w-8 h-8 rounded-lg bg-emerald-600 text-white flex items-center justify-center font-bold shrink-0">
             <CheckCircle2 className="w-4 h-4" />
+          </div>
+        </div>
+
+        {/* KPI 6: Special Requests */}
+        <div
+          onClick={() => onNavigate('/special-requests')}
+          className="bg-white rounded-xl border border-slate-200 p-3 shadow-xs cursor-pointer hover:border-slate-300 transition-all flex items-center justify-between border-l-4 border-l-amber-500"
+        >
+          <div>
+            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 block truncate">
+              Special Requests
+            </span>
+            <div className="text-lg font-extrabold text-amber-800 mt-0.5">{pendingSpecialReqs.length} Pending</div>
+            <span className="text-[9.5px] text-amber-700 font-medium block truncate">Supply chain tasks</span>
+          </div>
+          <div className="w-8 h-8 rounded-lg bg-amber-50 text-amber-700 flex items-center justify-center font-bold shrink-0 border border-amber-200">
+            <FileText className="w-4 h-4" />
           </div>
         </div>
       </div>
